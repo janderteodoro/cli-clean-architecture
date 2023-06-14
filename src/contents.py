@@ -1,41 +1,4 @@
-import os
-import tkinter as tk 
-from tkinter import filedialog
-
-def create_folder(pasta):
-    if not os.path.exists(pasta):
-        os.makedirs(pasta)
-
-def create_file(caminho, conteudo):
-    with open(caminho, 'w') as arquivo:
-        arquivo.write(conteudo)
-
-def create_hexagonal_structure(name_project, local):
-    os.chdir(local)
-    create_folder(name_project)
-    os.chdir(name_project)
-    os.system('npm init')
-    os.system('npm install express dotenv mongodb debug')
-    os.system('npm install -D jest eslint')
-    os.system('git init')
-
-    # folders source
-    create_folder('src')
-    create_folder('tests')
-    create_folder('.vscode')
-
-    # src
-    os.chdir('src')
-    create_folder('bin')
-    create_folder('domain')
-    create_folder('infrastructure')
-    create_folder('interfaces')
-    create_folder('useCases')
-
-    # bin
-    os.chdir('bin')
-    create_file('www', '''
-#!/usr/bin/env node
+www = '''#!/usr/bin/env node
 
 /**
  * Module dependencies.
@@ -126,25 +89,17 @@ function onListening () {
 server.listen(port)
 server.on('error', onError)
 server.on('listening', onListening)
+'''
 
-    ''')
-
-    # domain
-    os.chdir('..')
-    os.chdir('domain')
-    create_folder('user')
-    os.chdir('user')
-    create_file('index.js', '''
-const buildMakeUser = require('./userDomain')
+domain_user_index = '''const buildMakeUser = require('./userDomain')
 const userValidate = require('./userValidate')
 
 const makeUser = buildMakeUser(userValidate)
 
 module.exports = makeUser
+'''
 
-''')
-    create_file('userDomain.js', '''
-const buildMakeUser = (userValidate) => ({
+domain_user_user_domain = '''const buildMakeUser = (userValidate) => ({
   userName,
   userSurname,
   userEmail,
@@ -173,10 +128,9 @@ const buildMakeUser = (userValidate) => ({
 }
 
 module.exports = buildMakeUser
+'''
 
-    ''')
-    create_file('userValidate.js', '''
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+domain_user_validate = '''const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/
 
 function validateCPF (cpf) {
@@ -194,19 +148,9 @@ function validateUser ({ cpf, email }) {
 }
 
 module.exports = validateUser
+'''
 
-    ''')
-    # infrastructure
-    os.chdir('..')
-    os.chdir('..')
-    os.chdir('infrastructure')
-    create_folder('user')
-    os.chdir('user')
-    create_folder('db')
-    create_folder('webserver')
-    os.chdir('db')
-    create_file('index.js', '''
-const mongodb = require('mongodb')
+infrastructure_user_db = '''const mongodb = require('mongodb')
 require('dotenv').config()
 
 const { MongoClient, ServerApiVersion } = mongodb
@@ -227,15 +171,12 @@ const makeDb = async () => {
 }
 
 module.exports = makeDb
+'''
 
-    ''')
-    os.chdir('..')
-    os.chdir('webserver')
-    create_file('routes.js', '''
-const express = require('express')
+infrastructure_user_webserver_routes =  '''const express = require('express')
 
 const { userPost } = require('../../../interfaces/user/controllers')
-const makeCallback = require('../../../interfaces/user/express-calback')
+const makeCallback = require('../../../interfaces/user/express-callback')
 
 const router = express.Router()
 
@@ -243,10 +184,9 @@ router
   .post('/user', makeCallback(userPost))
 
 module.exports = router
+'''
 
-    ''')
-    create_file('index.js', '''
-const express = require('express')
+infrastructure_user_webserver_index = '''const express = require('express')
 const routes = require('./routes')
 
 const app = express()
@@ -255,22 +195,9 @@ app.use(express.json())
 app.use(routes)
 
 module.exports = app
+'''
 
-    ''')
-
-    # interfaces
-    os.chdir('..')
-    os.chdir('..')
-    os.chdir('..')
-    os.chdir('interfaces')
-    create_folder('user')
-    os.chdir('user')
-    create_folder('controllers')
-    create_folder('data-access')
-    create_folder('express-callback')
-    os.chdir('controllers')
-    create_file('index.js', '''
-const { createUser } = require('../../../useCases/user')
+interfaces_user_controllers_index = '''const { createUser } = require('../../../useCases/user')
 const makeUserPost = require('./user-post')
 
 const userPost = makeUserPost({ createUser })
@@ -280,10 +207,9 @@ const userController = Object.freeze({
 })
 
 module.exports = userController
+'''
 
-    ''')
-    create_file('user-post.js', '''
-const makeUserPost = ({ createUser }) => async (httpRequest) => {
+interfaces_user_controllers_post = '''const makeUserPost = ({ createUser }) => async (httpRequest) => {
   try {
     const { source = {}, ...userInfo } = httpRequest.body
     source.ip = httpRequest.ip
@@ -321,21 +247,17 @@ const makeUserPost = ({ createUser }) => async (httpRequest) => {
 }
 
 module.exports = makeUserPost
+'''
 
-    ''')
-    os.chdir('..')
-    os.chdir('data-access')
-    create_file('index.js', '''
-const makeUserDb = require('./user-db')
+interfaces_user_data_access_index = '''const makeUserDb = require('./user-db')
 const makeDb = require('../../../infrastructure/user/db')
 
 const userDb = makeUserDb({ makeDb })
 
 module.exports = userDb
+'''
 
-    ''')
-    create_file('user-db.js', '''
-const makeUserDb = ({ makeDb }) => {
+interfaces_user_data_access_user_db = '''const makeUserDb = ({ makeDb }) => {
   async function insert ({ ...userInfo }) {
     try {
       const db = await makeDb()
@@ -380,12 +302,9 @@ const makeUserDb = ({ makeDb }) => {
 }
 
 module.exports = makeUserDb
+'''
 
-    ''')
-    os.chdir('..')
-    os.chdir('express-callback')
-    create_file('index.js', '''
-const makeExpressCallback = (controller) => async (req, res) => {
+interfaces_user_express_callback = '''const makeExpressCallback = (controller) => async (req, res) => {
   const httpRequest = {
     body: req.body,
     query: req.query,
@@ -415,17 +334,9 @@ const makeExpressCallback = (controller) => async (req, res) => {
 }
 
 module.exports = makeExpressCallback
+'''
 
-    ''')
-    # useCases
-    os.chdir('..')
-    os.chdir('..')
-    os.chdir('..')
-    os.chdir('useCases')
-    create_folder('user')
-    os.chdir('user')
-    create_file('index.js', '''
-const makeCreateUser = require('./createUser')
+use_cases_user_index = '''const makeCreateUser = require('./createUser')
 const userDb = require('../../interfaces/user/data-access')
 
 const createUser = makeCreateUser({ userDb })
@@ -435,10 +346,9 @@ const userService = Object.freeze({
 })
 
 module.exports = userService
+'''
 
-    ''')
-    create_file('createUser.js', '''
-const makeUser = require('../../domain/user')
+use_cases_user_create = '''const makeUser = require('../../domain/user')
 
 const createUser = ({ userDb }) => async (userInfo) => {
   const userOrError = makeUser(userInfo)
@@ -481,26 +391,4 @@ const createUser = ({ userDb }) => async (userInfo) => {
 }
 
 module.exports = createUser
-
-    ''')
-
-    # tests
-
-    os.chdir('..')
-    os.chdir('..')
-    os.chdir('..')
-    os.chdir('tests')
-    create_folder('unit')
-    os.chdir('unit')
-    create_folder('domain')
-    create_folder('interfaces')
-    create_folder('useCases')
-
-
-if __name__ == '__main__':
-    print('CLI')
-    name = str(input('nome do projeto: '))
-    root = tk.Tk()
-    root.withdraw()
-    folder_path = filedialog.askdirectory()
-    create_hexagonal_structure(name, folder_path)
+'''
