@@ -1,1 +1,33 @@
-venv
+# Arquivos gerados automaticamente
+__pycache__/
+*.pyc
+
+# Dependências e pacotes instalados
+venv/
+env/
+*.env
+*.egg-info/
+dist/
+build/
+*.pyo
+*.egg
+*.egg-info
+.installed.cfg
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.snap
+
+# Arquivos e diretórios específicos do seu projeto
+meu_projeto/config.ini
+meu_projeto/data/
+
+# Outros arquivos e diretórios gerados durante o desenvolvimento
+.idea/
+.vscode/
+*.swp
+*.swo
+*.pyc
