@@ -1,4 +1,4 @@
-www = '''#!/usr/bin/env node
+www  = '''#!/usr/bin/env node
 
 /**
  * Module dependencies.
