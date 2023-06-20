@@ -6,7 +6,7 @@ from termcolor import colored
 
 def loading_animation():
     animation = "|/-\\"
-    for i in range(50):
+    for i in range(30):
         sleep(0.1)
         sys.stdout.write("\rCarregando " + animation[i % len(animation)] + " ")
         sys.stdout.flush()
@@ -29,6 +29,11 @@ def read_str(txt):
         try:
             option = str(input(txt)).strip()
             return option
+        except KeyboardInterrupt:
+            print('\n\nVocê pressionou Control+C, encerrando o programa...')
+            sleep(1.5)
+            sys.exit()
         except:
             print('Insira um valor valido')
             continue
+ 
