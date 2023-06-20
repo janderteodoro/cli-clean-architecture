@@ -1,7 +1,7 @@
 
 # CLI-CLEAN-ARCHITECTURE
 
-Este projeto consiste em uma CLI que monta uma base de um microsserviço em **Node.js** já na arquitetura exagonal:
+Este projeto consiste em uma CLI que monta uma base de um microsserviço em **Node.js** já na arquitetura hexagonal:
 
 <img src="docs/CleanArchitecture.jpg" width="300" height="200">
 
