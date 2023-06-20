@@ -6,7 +6,7 @@ Este projeto consiste em uma CLI que monta uma base de um microsserviço em **No
 <img src="docs/CleanArchitecture.jpg" width="300" height="200">
 
 ## Como rodar localmente
-Trata-se de um projeto em Python, portanto para que você consiga instalar e utilizar essa ferramenta, é necessário que tenha o Python 3 instalado com o virtualenv. Caso não tenha pode encontrar aqui no [site oficial](python.org) do Python.<br>
+Trata-se de um projeto em Python, portanto para que você consiga instalar e utilizar essa ferramenta, é necessário que tenha o Python 3 instalado com o virtualenv. Caso não tenha pode encontrar aqui no [site oficial](www.python.org) do Python.<br>
 Após instalar siga os seguintes passos:<br>
 1. Clone o repositorio -> `https://github.com/janderteodoro/cli-clean-architecture.git`
 2. Crie um ambiente virtual -> `python3 -m venv venv`
