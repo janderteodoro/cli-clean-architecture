@@ -34,4 +34,5 @@ Após instalar siga os seguintes passos:<br>
 - Ao executar terá o seguinte resultado, caso ainda não tenha colocado suas envs:<br><br>
 <img src="docs/start.png" width="500" height="150">
 
-- Após inserir irá logar apenas `node ./src/bin/www`
+- Após inserir irá logar apenas `node ./src/bin/www`, ficando da seguinte forma:<br>
+<img src="docs/run.png" width="500" height="150">
