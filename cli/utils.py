@@ -36,4 +36,3 @@ def read_str(txt):
         except:
             print('Insira um valor valido')
             continue
- 
