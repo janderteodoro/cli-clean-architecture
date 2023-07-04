@@ -9,7 +9,7 @@ import sys
 
 os_name = platform.system()
 desktop_path = Path.home() / "Desktop"
-folder_windows: desktop_path.resolve()
+folder_windows = desktop_path.resolve()
 
 questions = [
     inquirer.List('database',
