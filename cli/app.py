@@ -2,7 +2,7 @@ import os
 import utils as ut
 import contents
 
-def create_hexagonal_structure_mongo(name_project, local, database):
+def create_hexagonal_structure(name_project, local, database):
     os.chdir(local)
     ut.create_folder(name_project)
     os.chdir(name_project)

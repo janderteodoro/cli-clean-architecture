@@ -2,8 +2,14 @@ import inquirer
 import tkinter as tk
 import utils as ut
 from tkinter import filedialog
-from app import create_hexagonal_structure_mongo
+from app import create_hexagonal_structure
+import platform
+from pathlib import Path
 import sys
+
+os_name = platform.system()
+desktop_path = Path.home() / "Desktop"
+folder_windows: desktop_path.resolve()
 
 questions = [
     inquirer.List('database',
@@ -25,16 +31,21 @@ if __name__ == '__main__':
     name = ut.read_str('\r\033[K\nnome do projeto: ')
     answers = inquirer.prompt(questions)
     selected_database = answers['database']
-    root = tk.Tk()
-    root.withdraw()
-    while True:
-        try:
-            folder_path = filedialog.askdirectory()
-        except KeyboardInterrupt:
-            continue
-        except:
-            print('Escolha uma pasta para criar o seu projeto')
-        finally:
-            create_hexagonal_structure_mongo(name, folder_path, selected_database)
-            break
-    sys.exit()
+    
+    if os_name != 'Windows':
+        root = tk.Tk()
+        root.withdraw()
+        while True:
+            try:
+                folder_path = filedialog.askdirectory()
+            except KeyboardInterrupt:
+                continue
+            except:
+                print('Escolha uma pasta para criar o seu projeto')
+            finally:
+                create_hexagonal_structure(name, folder_path, selected_database)
+                break
+        sys.exit()
+    else:
+        create_hexagonal_structure(name, folder_windows, selected_database)
+        sys.exit()
