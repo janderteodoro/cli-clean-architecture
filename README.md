@@ -15,13 +15,15 @@ Após instalar siga os seguintes passos:<br>
 5. Execute o script main.py -> `python3 cli/main.py`
 
 ## Casos de uso
+
+### <p style="color: blue;">Linux / MacOS</p>
 - Após rodar a CLI. irá se deparar com a seguinte tela:<br><br>
 <img src="docs/initial-screen.png" width="500" height="200">
 
 
 - Então inserimos o nome do nosso projeto
 
-- O CLI irá abrir o finder para que escolha a pasta de destino<br><br>
+- O CLI irá abrir o exporador de arquivos para que escolha a pasta de destino<br><br>
 <img src="docs/finder.png" width="300" height="200">
 
 - Após escolher a pasta, voltamos para o terminal onde continuará todo o processo de instalação das libs e etc...<br><br>
@@ -36,3 +38,6 @@ Após instalar siga os seguintes passos:<br>
 
 - Após inserir irá logar apenas `node ./src/bin/www`, ficando da seguinte forma:<br>
 <img src="docs/run.png" width="500" height="150">
+
+### <p style="color: green;">Windows</p>
+Será bem parecido, a única diferença é que (até o momento) não foi possível colocar a fature de selecionar a pasta, portanto, por padrão, ele cria a o projeto na Área de Trabalho. Então siga os passos acima, ignorando apenas a etapa de seleção da pasta de destino. 

@@ -91,7 +91,7 @@ server.on('error', onError)
 server.on('listening', onListening)
 '''
 
-domain_user_index = '''const buildMakeUser = require('./userDomain')
+user_entitie_index = '''const buildMakeUser = require('./userEntitie')
 const userValidate = require('./userValidate')
 
 const makeUser = buildMakeUser(userValidate)
@@ -99,7 +99,7 @@ const makeUser = buildMakeUser(userValidate)
 module.exports = makeUser
 '''
 
-domain_user_user_domain = '''const buildMakeUser = (userValidate) => ({
+user_entitie = '''const buildMakeUser = (userValidate) => ({
   userName,
   userSurname,
   userEmail,
@@ -107,15 +107,19 @@ domain_user_user_domain = '''const buildMakeUser = (userValidate) => ({
 } = {}) => {
   if (!userName || !userSurname || !userEmail || !userDocumentNumber) {
     return {
-      message: 'all properties are mandatory',
-      statusCode: 400
+      error: {
+        message: 'all properties are mandatory',
+        statusCode: 400
+      }
     }
   }
 
   if (!userValidate({ cpf: userDocumentNumber, email: userEmail })) {
     return {
-      message: 'invalid Data',
-      statusCode: 400
+      error: {
+        message: 'invalid Data',
+        statusCode: 400
+      }
     }
   }
 
@@ -130,7 +134,7 @@ domain_user_user_domain = '''const buildMakeUser = (userValidate) => ({
 module.exports = buildMakeUser
 '''
 
-domain_user_validate = '''const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+entitie_user_validate = '''const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/
 
 function validateCPF (cpf) {
@@ -150,12 +154,31 @@ function validateUser ({ cpf, email }) {
 module.exports = validateUser
 '''
 
-infrastructure_user_db = '''const mongodb = require('mongodb')
+infrastructure_user_db_mysql = ''''const mysql = require('mysql2')
+require('dotenv').config()
+
+const host = process.env.MY_SQL_HOST
+const user = process.env.MY_SQL_USER
+const password = process.env.MY_SQL_PASS
+const database = process.env.MY_SQL_DATABASE
+
+const connection = mysql.createConnection({
+  host,
+  user,
+  password,
+  database
+})
+
+module.exports = connection
+'''
+
+infrastructure_user_db_mongo = '''const mongodb = require('mongodb')
 require('dotenv').config()
 
 const { MongoClient, ServerApiVersion } = mongodb
 const url = process.env.USER_DB_URL
 const dbName = process.env.USER_DB_NAME
+
 const client = new MongoClient(url, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -175,8 +198,8 @@ module.exports = makeDb
 
 infrastructure_user_webserver_routes =  '''const express = require('express')
 
-const { userPost } = require('../../../interfaces/user/controllers')
-const makeCallback = require('../../../interfaces/user/express-callback')
+const { userPost } = require('../../../adapters/user/controllers')
+const makeCallback = require('../../../adapters/user/express-callback')
 
 const router = express.Router()
 
@@ -197,7 +220,7 @@ app.use(routes)
 module.exports = app
 '''
 
-interfaces_user_controllers_index = '''const { createUser } = require('../../../useCases/user')
+adapters_user_controllers_index = '''const { createUser } = require('../../../useCases/user')
 const makeUserPost = require('./user-post')
 
 const userPost = makeUserPost({ createUser })
@@ -209,20 +232,22 @@ const userController = Object.freeze({
 module.exports = userController
 '''
 
-interfaces_user_controllers_post = '''const makeUserPost = ({ createUser }) => async (httpRequest) => {
+adapters_user_controllers_post = '''const makeUserPost = ({ createUser }) => async (httpRequest) => {
   try {
     const { source = {}, ...userInfo } = httpRequest.body
     source.ip = httpRequest.ip
     source.browser = httpRequest.headers['User-Agent']
-    if (httpRequest.headers.Referer) {
-      source.referrer = httpRequest.headers.Referer
-    }
+    
     const userCreatedOrError = await createUser({
       ...userInfo
     })
 
-    if (userCreatedOrError.error) {
+    if (userCreatedOrError.result instanceof Error) {
       return userCreatedOrError
+    }
+
+    if (userCreatedOrError.error) {
+      return userCreatedOrError.error
     }
 
     return {
@@ -230,7 +255,7 @@ interfaces_user_controllers_post = '''const makeUserPost = ({ createUser }) => a
         'Content-Type': 'application/json',
         'Last-Modified': new Date(userCreatedOrError.modifieOn).toUTCString()
       },
-      body: { userCreatedOrError }
+      body: userCreatedOrError
     }
   } catch (error) {
     return {
@@ -240,7 +265,6 @@ interfaces_user_controllers_post = '''const makeUserPost = ({ createUser }) => a
       stausCode: 400,
       body: {
         error: error.message,
-        codeError: 'COD1000X'
       }
     }
   }
@@ -249,7 +273,7 @@ interfaces_user_controllers_post = '''const makeUserPost = ({ createUser }) => a
 module.exports = makeUserPost
 '''
 
-interfaces_user_data_access_index = '''const makeUserDb = require('./user-db')
+adapters_user_data_access_index_mongo = '''const makeUserDb = require('./user-db')
 const makeDb = require('../../../infrastructure/user/db')
 
 const userDb = makeUserDb({ makeDb })
@@ -257,7 +281,9 @@ const userDb = makeUserDb({ makeDb })
 module.exports = userDb
 '''
 
-interfaces_user_data_access_user_db = '''const makeUserDb = ({ makeDb }) => {
+adapters_user_data_access_user_db_mongo = '''const DatabaseError = require('../../../utils/databaseError')
+
+const makeUserDb = ({ makeDb }) => {
   async function insert ({ ...userInfo }) {
     try {
       const db = await makeDb()
@@ -269,14 +295,11 @@ interfaces_user_data_access_user_db = '''const makeUserDb = ({ makeDb }) => {
       const { ...insertedInfo } = result
       return { insertedInfo }
     } catch (error) {
-      return {
-        codeError: 'COD1002X',
-        error
-      }
+      return new DatabaseError('Error in Adapter layer: Database Error', 'DB_ERROR', error)
     }
   }
 
-  async function find ({ email }) {
+  async function findOne({ email }) {
     try {
       const db = await makeDb()
 
@@ -286,17 +309,27 @@ interfaces_user_data_access_user_db = '''const makeUserDb = ({ makeDb }) => {
 
       return result
     } catch (error) {
-      return {
-        body: {
-          codeError: 'COD1001X'
-        },
-        error
-      }
+      return new DatabaseError('Error in Adapter layer: Database Error', 'DB_ERROR', error)
+    }
+  }
+
+  async function find() {
+    try {
+      const db = await makeDb()
+      
+      const results = await db
+        .collection('users')
+        .find().toArray()
+     
+      return results
+    } catch (error) {
+      return new DatabaseError('Error in Adapter layer: DataBaseError', 'DB_ERROR', error)
     }
   }
 
   return Object.freeze({
     insert,
+    findOne,
     find
   })
 }
@@ -304,7 +337,7 @@ interfaces_user_data_access_user_db = '''const makeUserDb = ({ makeDb }) => {
 module.exports = makeUserDb
 '''
 
-interfaces_user_express_callback = '''const makeExpressCallback = (controller) => async (req, res) => {
+apdaters_user_express_callback = '''const makeExpressCallback = (controller) => (req, res) => {
   const httpRequest = {
     body: req.body,
     query: req.query,
@@ -315,29 +348,27 @@ interfaces_user_express_callback = '''const makeExpressCallback = (controller) =
     headers: {
       'Content-Type': req.get('Content-Type'),
       Referer: req.get('referer'),
-      'User-Agent': req.get('User-Agent')
-    }
-  }
+      'User-Agent': req.get('User-Agent'),
+    },
+  };
+  controller(httpRequest)
+    .then((httpResponse) => {
+      if (httpResponse.headers) {
+        res.set(httpResponse.headers);
+      }
+      res.type('json');
+      res
+        .status(httpResponse.statusCode || httpResponse.body.statusCode)
+        .send(httpResponse.body || httpResponse);
+    })
+    .catch(() => res.status(500).send({ error: 'An unkown error occurred.' }));
+};
 
-  try {
-    const httpResponse = await controller(httpRequest)
-
-    if (httpResponse.headers) {
-      res.set(httpResponse.headers)
-    }
-
-    res.type('json')
-    res.status(httpResponse.body.userCreatedOrError.statusCode).send(httpResponse.body)
-  } catch (error) {
-    res.status(500).send({ error: 'An unknown error occurred.' })
-  }
-}
-
-module.exports = makeExpressCallback
+module.exports = makeExpressCallback;
 '''
 
 use_cases_user_index = '''const makeCreateUser = require('./createUser')
-const userDb = require('../../interfaces/user/data-access')
+const userDb = require('../../adapters/user/data-access')
 
 const createUser = makeCreateUser({ userDb })
 
@@ -348,22 +379,23 @@ const userService = Object.freeze({
 module.exports = userService
 '''
 
-use_cases_user_create = '''const makeUser = require('../../domain/user')
+use_cases_user_create = '''const makeUser = require('../../entitie/user')
+const DatabaseError = require('../../utils/databaseError')
 
 const createUser = ({ userDb }) => async (userInfo) => {
   const userOrError = makeUser(userInfo)
 
-  if (userOrError.message) {
+  if (userOrError.error) {
     return {
-      message: userOrError.message,
-      statusCode: userOrError.statusCode
+      message: userOrError.error.message,
+      statusCode: userOrError.error.statusCode
     }
   }
 
   const user = userOrError
-  const existingUser = await userDb.find({ email: user.getUserEmail() })
+  const result = await userDb.findOne({ email: user.getUserEmail() })
 
-  if (!(existingUser)) {
+  if (!(result)) {
     const userCreated = await userDb.insert({
       userName: user.getUserName(),
       userSurName: user.getUserSurname(),
@@ -376,16 +408,17 @@ const createUser = ({ userDb }) => async (userInfo) => {
     }
   }
 
-  if (existingUser.body) {
+  if (result instanceof DatabaseError) {
     return {
-      body: existingUser.body,
+      result,
       statusCode: 500,
-      error: existingUser.error
     }
   } else {
     return {
-      message: 'User already exists',
-      statusCode: 409
+      error: {
+        message: 'User already exists',
+        statusCode: 409
+      }
     }
   }
 }
@@ -523,3 +556,15 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*'''
+
+util_database_error = '''class DatabaseError extends Error {
+  constructor(message, code, error) {
+    super(message)
+    this.name = 'DatabaseError'
+    this.code = code
+    this.error = error
+  }
+}
+
+module.exports = DatabaseError
+'''
