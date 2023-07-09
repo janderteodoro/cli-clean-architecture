@@ -3,6 +3,7 @@ import tkinter as tk
 import utils as ut
 from tkinter import filedialog
 from app import create_hexagonal_structure
+from time import sleep
 import platform
 from pathlib import Path
 import sys
@@ -13,7 +14,7 @@ folder_windows = desktop_path.resolve()
 
 questions = [
     inquirer.List('database',
-                  message='Escolha um banco de dados:',
+                  message='Escolha um banco de dados',
                   choices=['MySQL', 'MongoDB']
                   ),
 ]
@@ -43,9 +44,19 @@ if __name__ == '__main__':
             except:
                 print('Escolha uma pasta para criar o seu projeto')
             finally:
-                create_hexagonal_structure(name, folder_path, selected_database)
-                break
+                try:
+                    create_hexagonal_structure(name, folder_path, selected_database)
+                    break
+                except:
+                    print('Encerrando o programa...')
+                    sleep(2)
+                    sys.exit()
         sys.exit()
     else:
-        create_hexagonal_structure(name, folder_windows, selected_database)
-        sys.exit()
+        try:
+            create_hexagonal_structure(name, folder_windows, selected_database)
+            sys.exit()
+        except:
+            print('Encerrando o programa...')
+            sleep(2)
+            sys.exit()
