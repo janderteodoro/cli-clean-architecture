@@ -15,7 +15,7 @@ folder_windows = desktop_path.resolve()
 questions = [
     inquirer.List('database',
                   message='Escolha um banco de dados',
-                  choices=['MySQL', 'MongoDB']
+                  choices=['\033[38;2;255;255;0mMySQL\033[0m', '\033[38;2;0;255;0mMongoDB\033[0m']
                   ),
 ]
 
@@ -27,7 +27,8 @@ def handle_keypress(event):
 
 if __name__ == '__main__':
     ut.print_big_text('CLI-CLEAN-ARCHITECTURE', 'magenta')
-    print('Esta é uma ferramenta que irá criar um projeto em Node.js seguindo o padrão de Arquitetura limpa')
+    print('Esta é uma ferramenta que irá criar um projeto em Node.js seguindo o padrão de Arquitetura limpa!!!')
+    print('\n\nby: Jander Teodoro\ngithub: \033[38;2;0;0;255mhttps://github.com/janderteodoro\033[0m\n\n')
     ut.loading_animation()
     name = ut.read_str('\r\033[K\nnome do projeto: ')
     answers = inquirer.prompt(questions)
