@@ -7,7 +7,10 @@ def create_hexagonal_structure(name_project, local, database):
     ut.create_folder(name_project)
     os.chdir(name_project)
     os.system('npm init')
-    os.system('npm install express dotenv mongodb debug')
+    if (database == 'MySQL'):
+        os.system('npm install mysql2 dotenv mongodb debug')
+    else:
+        os.system('npm install express dotenv mongodb debug')
     os.system('npm install -D jest eslint')
     os.system('git init')
 
@@ -75,28 +78,29 @@ def create_hexagonal_structure(name_project, local, database):
         ut.create_file('index.js', contents.infrastructure_user_webserver_index)
 
     # adapters
-    if (database == 'MySQL'):
-        pass
+    os.chdir('..')
+    os.chdir('..')
+    os.chdir('..')
+    os.chdir('adapters')
+    ut.create_folder('user')
+    os.chdir('user')
+    ut.create_folder('controllers')
+    ut.create_folder('data-access')
+    ut.create_folder('express-callback')
+    os.chdir('controllers')
+    ut.create_file('index.js', contents.adapters_user_controllers_index)
+    ut.create_file('user-post.js', contents.adapters_user_controllers_post)
+    os.chdir('..')
+    os.chdir('data-access')
+    if(database == 'MySQL'):
+        ut.create_file('index.js', contents.adapters_user_data_access_index_mysql)
+        ut.create_file('user-db.js', contents.adapters_user_data_access_user_db_mysql)
     else:
-        os.chdir('..')
-        os.chdir('..')
-        os.chdir('..')
-        os.chdir('adapters')
-        ut.create_folder('user')
-        os.chdir('user')
-        ut.create_folder('controllers')
-        ut.create_folder('data-access')
-        ut.create_folder('express-callback')
-        os.chdir('controllers')
-        ut.create_file('index.js', contents.adapters_user_controllers_index)
-        ut.create_file('user-post.js', contents.adapters_user_controllers_post)
-        os.chdir('..')
-        os.chdir('data-access')
         ut.create_file('index.js', contents.adapters_user_data_access_index_mongo)
         ut.create_file('user-db.js', contents.adapters_user_data_access_user_db_mongo)
-        os.chdir('..')
-        os.chdir('express-callback')
-        ut.create_file('index.js', contents.apdaters_user_express_callback)
+    os.chdir('..')
+    os.chdir('express-callback')
+    ut.create_file('index.js', contents.apdaters_user_express_callback)
 
     # useCases
     os.chdir('..')
