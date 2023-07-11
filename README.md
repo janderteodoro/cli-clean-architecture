@@ -18,11 +18,12 @@ Após instalar siga os seguintes passos:<br>
 
 ### <p style="color: blue;">Linux / MacOS</p>
 - Após rodar a CLI. irá se deparar com a seguinte tela:<br><br>
-<img src="docs/initial-screen.png" width="500" height="200">
+<img src="docs/initial-screen.png" width="500" height="300">
 
 
 - Então inserimos o nome do nosso projeto
-
+- Após, escolhemos se nosso projeto irá ter o Mongo ou o MySql<br>
+<img src="docs/databasechoice.png" width="400" height="150">
 - O CLI irá abrir o exporador de arquivos para que escolha a pasta de destino<br><br>
 <img src="docs/finder.png" width="300" height="200">
 

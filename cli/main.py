@@ -26,8 +26,8 @@ def handle_keypress(event):
         pass
 
 if __name__ == '__main__':
-    ut.print_big_text('CLI-CLEAN-ARCHITECTURE', 'magenta')
-    print('Esta é uma ferramenta que irá criar um projeto em Node.js seguindo o padrão de Arquitetura limpa!!!')
+    ut.print_big_text('CLI\nCLEAN-\nARCHITECTURE', 'magenta')
+    print('Esta é uma ferramenta que irá criar uma API em Node.js seguindo o padrão de Arquitetura limpa!!!')
     print('\n\nby: Jander Teodoro\ngithub: \033[38;2;0;0;255mhttps://github.com/janderteodoro\033[0m\n\n')
     ut.loading_animation()
     name = ut.read_str('\r\033[K\nnome do projeto: ')
